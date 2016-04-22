@@ -4,6 +4,7 @@ def projectFolderName = "${PROJECT_NAME}"
 
 // Variables
 def projectNameKey = projectFolderName.toLowerCase().replace("/", "-")
+def envPackageName = 'Pet Clinic'
 def referenceAppgitRepo = "spring-petclinic"
 def regressionTestGitRepo = "adop-cartridge-java-regression-tests"
 def referenceAppGitUrl = "ssh://jenkins@gerrit:29418/${PROJECT_NAME}/" + referenceAppgitRepo
@@ -226,6 +227,17 @@ deployJob.with {
             |echo "=.=.=.=.=.=.=.=.=.=.=.=."
             |set -x'''.stripMargin()
         )
+    }
+    configure { node ->
+        node / 'buildWrappers' << 'org.jenkinsci.plugins.environmentdashboard.DashboardBuilder'(plugin: 'environment-dashboard@1.1.3') {
+            nameOfEnv('${ENVIRONMENT_NAME}')
+            componentName('${PROJECT_NAME}')
+            buildNumber('${B}')
+            packageName(envPackageName)
+            buildJob('${PARENT_BUILD}')
+            data()
+            addColumns()
+        }
     }
     publishers {
         downstreamParameterized {
@@ -481,6 +493,17 @@ deployJobToProdA.with {
             |echo "=.=.=.=.=.=.=.=.=.=.=.=."
             |set -x'''.stripMargin())
     }
+    configure { node ->
+        node / 'buildWrappers' << 'org.jenkinsci.plugins.environmentdashboard.DashboardBuilder'(plugin: 'environment-dashboard@1.1.3') {
+            nameOfEnv('${ENVIRONMENT_NAME}')
+            componentName('${PROJECT_NAME}')
+            buildNumber('${B}')
+            packageName(envPackageName)
+            buildJob('${PARENT_BUILD}')
+            data()
+            addColumns()
+        }
+    }
     publishers {
         buildPipelineTrigger(projectFolderName + "/Reference_Application_Deploy_ProdB") {
             parameters {
@@ -538,5 +561,16 @@ deployJobToProdB.with {
             |echo "=.=.=.=.=.=.=.=.=.=.=.=."
             |set -x'''.stripMargin()
         )
+    }
+    configure { node ->
+        node / 'buildWrappers' << 'org.jenkinsci.plugins.environmentdashboard.DashboardBuilder'(plugin: 'environment-dashboard@1.1.3') {
+            nameOfEnv('${ENVIRONMENT_NAME}')
+            componentName('${PROJECT_NAME}')
+            buildNumber('${B}')
+            packageName(envPackageName)
+            buildJob('${PARENT_BUILD}')
+            data()
+            addColumns()
+        }
     }
 }

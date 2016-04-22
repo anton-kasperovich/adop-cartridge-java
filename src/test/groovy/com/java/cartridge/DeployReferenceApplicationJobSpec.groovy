@@ -145,11 +145,12 @@ class DeployReferenceApplicationJobSpec extends Specification {
             node.buildWrappers[key].size() == 1
 
         where:
-            name              | key
-            'preBuildCleanup' | 'hudson.plugins.ws__cleanup.PreBuildCleanup'
-            'injectPasswords' | 'EnvInjectPasswordWrapper'
-            'maskPasswords'   | 'com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper'
-            'sshAgent'        | 'com.cloudbees.jenkins.plugins.sshagent.SSHAgentBuildWrapper'
+            name                   | key
+            'preBuildCleanup'      | 'hudson.plugins.ws__cleanup.PreBuildCleanup'
+            'injectPasswords'      | 'EnvInjectPasswordWrapper'
+            'maskPasswords'        | 'com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper'
+            'sshAgent'             | 'com.cloudbees.jenkins.plugins.sshagent.SSHAgentBuildWrapper'
+            'environmentDashboard' | 'org.jenkinsci.plugins.environmentdashboard.DashboardBuilder'
     }
 
     @Unroll
@@ -163,6 +164,40 @@ class DeployReferenceApplicationJobSpec extends Specification {
 
         where:
             sshCredentials = "adop-jenkins-master"
+    }
+
+    def 'wrappers Environment Dashboard is configured'() {
+        expect:
+            node.buildWrappers['org.jenkinsci.plugins.environmentdashboard.DashboardBuilder'].size() == 1
+
+            with(node.buildWrappers['org.jenkinsci.plugins.environmentdashboard.DashboardBuilder']) {
+                with(nameOfEnv) {
+                    text() == envName
+                }
+
+                with(packageName) {
+                    text() == envPackage
+                }
+
+                with(buildJob) {
+                    text() == envBuildJob
+                }
+
+                with(buildNumber) {
+                    text() == envBuildNum
+                }
+
+                with(componentName) {
+                    text() == envComponent
+                }
+            }
+
+        where:
+            envName = '${ENVIRONMENT_NAME}'
+            envPackage = 'Pet Clinic'
+            envBuildNum = '${B}'
+            envBuildJob = '${PARENT_BUILD}'
+            envComponent = '${PROJECT_NAME}'
     }
 
     def 'scm block not exists'() {
